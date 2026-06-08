@@ -10,7 +10,7 @@ Goal: Establish secure edge identity and basic sensor polling.
 Depends: None
 
 [ ] Set up ESP-IDF environment on MacBook Air — Ensure `esptool` and `espefuse` are in path.
-[ ] Provision eFuse Keys — Burn NIST P-256 private key to BLOCK_KEY0. Constraint: Irreversible. Skill: Cryptographic Provisioning.
+[ ] Provision eFuse HMAC Key — Burn the HMAC secret key to the ESP32-S3 eFuse block. This key wraps (encrypts) the ECDSA private key stored in flash, allowing the hardware Digital Signature (DS) peripheral to perform signature operations without exposing the private key to software. Constraint: Irreversible. Skill: Cryptographic Provisioning.
 [ ] Interface BME280 sensor — Validate I2C connectivity and raw telemetry acquisition.
 [ ] Implement PID Control Loop — Core thermal logic; must run on Core 1 (APP_CPU) to avoid network starvation. Risk: CPU starvation.
 
@@ -20,14 +20,14 @@ Depends: Phase 1
 
 [ ] Implement Hardware SHA-256 + ECDSA — Utilize Mbed TLS hardware hooks for sub-10ms signing.
 [ ] Configure Alibaba MQTT Broker — Set up ApsaraMQ with MQTT 5.0.
-[ ] Write JSON Signer — Package sensor data + image UUID + timestamp into signed JWS/JSON.
+[ ] Write Binary Compressor and Signer — Pack/compress BME280 sensor data, timestamps, and metadata into a compact binary representation (e.g., MessagePack or raw binary struct) at the edge, hash it using hardware SHA-256, and sign it via the ESP32-S3 DS peripheral before transmission. Massive JSON telemetry payloads over MQTT are strictly prohibited.
 [ ] [COLAB] Validate Telemetry Ingress — Script to monitor MQTT topic and verify signatures using public key. Colab: Yes — python verification script.
 
 Phase 3 — Edge Vision & Media [LOCAL]
 Goal: Memory-resilient image capture and chunked transmission.
 Depends: Phase 2
 
-[ ] Initialize ESP32-CAM — Set `grab_mode` to `CAMERA_GRAB_LATEST` and `fb_count` in PSRAM.
+[ ] Initialize ESP32-S3-CAM — Set `grab_mode` to `CAMERA_GRAB_LATEST` and `fb_count` in PSRAM.
 [ ] Implement MQTT Chunking — 32KB slices with binary headers. Skill: Resilient MQTT Media Transfer. Constraint: internal heap limits.
 [ ] Implement Backpressure logic — Wait for PUBACK before next chunk. Risk: Heap fragmentation.
 [ ] Develop Cloud Reassembler — Alibaba Function Compute to buffer chunks in Redis and upload to OSS.

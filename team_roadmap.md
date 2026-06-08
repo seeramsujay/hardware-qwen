@@ -118,20 +118,23 @@ This role builds the cloud reassembly logic, verifies edge signatures, and wires
 ## Role 5: Compliance, QA, & System Integration Coordinator (Less Technical / Process)
 *Process, QA, and Verification Focused*
 
-This role coordinates validation, documents FDA compliance mapping, handles system-level testing, and enforces quality gates.
+This role coordinates validation, documents FDA compliance mapping, handles system-level testing, enforces quality gates, and leads the team's hackathon management, presentation, and demo video preparation.
 
 ### Key Responsibilities
 1. Map architectural components against FDA Title 21 CFR Part 11 requirements.
 2. Design and coordinate the integration test plan.
 3. Manage test vectors and run compliance audit tests.
 4. Coordinate asynchronous code/artifact reviews and maintain project documentation.
+5. Create the project presentation slides, organize the demo video recording, manage general hackathon deliverables (e.g., submission portal details, team profiles, Q&A prep), and oversee the final packaging.
 
 ### Task Breakdown
 - **Task 5.1**: Map out the formal trace matrix linking code files (e.g. eFuse keys, DS peripherals) to FDA 21 CFR Part 11 regulations.
 - **Task 5.2**: Establish a testing suite of mock environmental conditions (e.g. thermal breaches, connection drop simulations) and manage standard test payloads.
 - **Task 5.3**: Author the system verification plan, documenting end-to-end telemetry paths and testing criteria for signature validity.
 - **Task 5.4**: Orchestrate validation gates between the roles. Review Role 4's prompt templates and Role 2's key wrapping protocols, and aggregate output artifacts into a cohesive validation document.
+- **Task 5.5**: Design and compile the final team presentation deck, coordinate the collection of screen recordings/demos from Roles 1-4, and edit/produce the final video walkthrough.
+- **Task 5.6**: Manage hackathon logistics, including writing the Devpost/submission summary, configuring the public GitHub repository page, and prepping the team for judge Q&A sessions.
 
 ### Interface Boundaries
-* **Inputs**: Pull requests, API outputs, and logs from Roles 1, 2, 3, and 4.
-* **Outputs**: System verification report, compliance trace matrix, user manual, and overall quality sign-off.
+* **Inputs**: Pull requests, API outputs, and logs from Roles 1, 2, 3, and 4, plus screen capture contributions.
+* **Outputs**: System verification report, compliance trace matrix, user manual, team presentation deck, project demo video, hackathon submission portal write-up, and overall quality sign-off.

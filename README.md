@@ -1,8 +1,8 @@
-# ESP32 Cold-Chain Compliance Agent
+# CryoKrypton
 
 **Zero-trust edge auditing for high-value biologicals using hardware-backed cryptography and Qwen3.7-Plus.**
 
-The global pharmaceutical supply chain relies on fragile, cloud-dependent sensors that are trivial to forge. This project turns the ESP32-S3-CAM (or ESP32-S3 equipped with a camera module) into an autonomous, cryptographically secure compliance agent capable of locally signing audit trails and orchestrating complex logistics interventions via multimodal AI.
+The global pharmaceutical supply chain relies on fragile, cloud-dependent sensors that are trivial to forge. CryoKrypton turns the ESP32-S3-CAM (or ESP32-S3 equipped with a camera module) into an autonomous, cryptographically secure compliance agent capable of locally signing audit trails and orchestrating complex logistics interventions via multimodal AI.
 
 ## Install
 

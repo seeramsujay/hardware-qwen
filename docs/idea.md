@@ -1,4 +1,4 @@
-Idea: ESP32 Cold-Chain Compliance Agent
+Idea: CryoKrypton
 
 The Thing
 A zero-trust edge agent that turns an ESP32-S3 (equipped with a camera module) into a cryptographically secure FDA compliance auditor. It monitors high-value cargo (vaccines, biologics), signs every sensor reading in hardware, and uses Qwen3.7-Plus in the cloud to act as an autonomous dispatcher if it detects physical or thermal anomalies.

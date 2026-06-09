@@ -1,4 +1,4 @@
-Roadmap: ESP32 Cold-Chain Compliance Agent
+Roadmap: CryoKrypton
 
 Legend
 DONE | ACTIVE | BLOCKED | COLAB | LOCAL | RISK

@@ -1,6 +1,6 @@
 # Async Team Work-Split Roadmap
 
-This document outlines the asynchronous work-split for a team of 5 people to build the **ESP32-S3 Cold-Chain Compliance Agent**. The team consists of **4 highly technical engineers** and **1 QA/Compliance coordinator** (focused on processes, FDA validation, and coordination).
+This document outlines the asynchronous work-split for a team of 5 people to build **CryoKrypton** (formerly ESP32-S3 Cold-Chain Compliance Agent). The team consists of **4 highly technical engineers** and **1 QA/Compliance coordinator** (focused on processes, FDA validation, and coordination).
 
 ---
 

@@ -1,1 +1,12 @@
-Archives/
+# Git ignore file for ESP-IDF CryoKrypton Project
+build/
+sdkconfig
+sdkconfig.old
+sdkconfig.defaults.old
+esp/
+.vscode/
+.idea/
+*.swp
+*.o
+*.bin
+*.elf

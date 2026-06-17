@@ -1,0 +1,11 @@
+# Enable external SPI RAM (PSRAM) support
+CONFIG_SPIRAM=y
+CONFIG_SPIRAM_BOOT_INIT=y
+CONFIG_SPIRAM_TYPE_AUTO=y
+
+# Enable Flash Encryption (Development Mode)
+CONFIG_SECURE_FLASH_ENC_ENABLED=y
+CONFIG_SECURE_FLASH_ENCRYPTION_MODE_DEVELOPMENT=y
+
+# Enable Non-Volatile Storage (NVS) Encryption
+CONFIG_NVS_ENCRYPTION=y

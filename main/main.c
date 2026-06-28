@@ -8,6 +8,7 @@
 #include "driver/gpio.h"
 #include "bme280_driver.h"
 #include "telemetry_engine.h"
+#include "security_engine.h"
 
 static const char *TAG = "MAIN_APP";
 
@@ -120,6 +121,14 @@ void telemetry_reporting_task(void *pvParameters) {
                      (int)sizeof(packet_buf), computed_sum, packet_buf[19], hex_buf);
         }
         
+        // 3. Log/Verify Cryptographically Signed Packet (276 Bytes)
+        uint8_t signed_buf[276];
+        if (get_signed_telemetry_snapshot(signed_buf, sizeof(signed_buf)) == ESP_OK) {
+            ESP_LOGI("SECURITY", "Signed Frame (Size: 276 B) successfully generated with 256-byte RSA signature.");
+        } else {
+            ESP_LOGE("SECURITY", "Failed to generate signed telemetry frame.");
+        }
+        
         vTaskDelay(pdMS_TO_TICKS(4000)); // Publish/Report rate: 4 seconds
     }
 }
@@ -174,6 +183,9 @@ void app_main(void)
     
     // 4. Initialize Telemetry Engine
     ESP_ERROR_CHECK(telemetry_engine_init());
+    
+    // Initialize Security Engine (Role 2)
+    ESP_ERROR_CHECK(security_engine_init());
     
     // 5. Initialize BME280 Driver
     ESP_ERROR_CHECK(bme280_init());

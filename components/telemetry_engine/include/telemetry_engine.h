@@ -68,3 +68,20 @@ esp_err_t telemetry_engine_get_data(telemetry_data_t *out_data);
  * @return ESP_OK on success, error code otherwise.
  */
 esp_err_t get_cryo_telemetry_snapshot(uint8_t *out_buffer, size_t buffer_len);
+
+// Packed binary structure for signed telemetry (276 bytes total)
+typedef struct __attribute__((packed)) {
+    cryo_telemetry_packet_t telemetry;   // 20 bytes
+    uint8_t signature[256];              // 256 bytes RSA signature of the 20-byte payload
+} signed_telemetry_packet_t;
+
+/**
+ * @brief Packages the 20-byte telemetry snapshot, hashes it using SHA-256,
+ *        signs it via the security engine (software or hardware), and outputs a 276-byte signed package.
+ * 
+ * @param[out] out_buffer Target buffer to copy the signed telemetry packet to.
+ * @param[in] buffer_len Length of the target buffer (must be at least 276 bytes).
+ * @return ESP_OK on success, or an appropriate error code.
+ */
+esp_err_t get_signed_telemetry_snapshot(uint8_t *out_buffer, size_t buffer_len);
+

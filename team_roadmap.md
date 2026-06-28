@@ -49,19 +49,22 @@ This role focuses on building the hardware foundation, reading sensors, and ensu
 ## Role 2: Cryptographic Security & Identity Provisioning Engineer (Edge Security)
 *Highly Technical*
 
-This role handles secure identity provisioning, hardware key wrapping, and out-of-visibility signature generation.
+This role handles secure identity provisioning, hardware key wrapping, and signature generation.
+
+> [!NOTE]
+> **Design Alignment**: The ESP32-S3 hardware Digital Signature (DS) peripheral supports **RSA-2048/3072/4096** (not ECDSA). For development, the team is aligned on **Option A: Software Fallback RSA Mode**, which simulates RSA-2048 signatures without requiring physical eFuse burning.
 
 ### Key Responsibilities
-1. Develop the security provisioning workflow for the ESP32-S3.
-2. Write scripts to generate and wrap ECDSA keys using eFuse HMAC blocks.
-3. Implement hardware-accelerated SHA-256 and Digital Signature (DS) drivers.
-4. Integrate DS peripheral operations into the Mbed TLS stack.
+1. Develop the security provisioning and key-generation workflow for the project.
+2. Write scripts to generate and wrap RSA keys.
+3. Implement a security engine supporting both hardware-accelerated DS operations (for production) and software-based fallback (for development simulation).
+4. Integrate signing operations into the telemetry engine.
 
 ### Task Breakdown
-- **Task 2.1**: Write `espefuse.py` and `espsecure.py` command scripts to burn a 256-bit HMAC key into `BLOCK_KEY0` and generate the encrypted private key wrapper.
-- **Task 2.2**: Write the firmware module to register and load the wrapped key context from flash.
-- **Task 2.3**: Interface with the ESP32-S3's hardware SHA engine to digest telemetry frames and images.
-- **Task 2.4**: Create a secure signature utility API (`esp_ds_sign_hash`) that uses the DS peripheral to generate NIST P-256 signatures in sub-10ms.
+- **Task 2.1**: Implement a modular `security_engine` component supporting software fallback (Mbed TLS RSA-2048) and hardware DS stubs.
+- **Task 2.2**: Write Python scripts to generate RSA key pairs and prepare wrapped private key parameters.
+- **Task 2.3**: Write a signature verification test suite (`verify_signature.py`) to validate generated signatures locally.
+- **Task 2.4**: Coordinate with Role 3 (packet serialization) and Role 4 (cloud reassembler verification) on the RSA signature payload format (256 bytes).
 
 ### Interface Boundaries
 * **Inputs**: Plain text message hash (32-byte SHA-256 digest) and the stored wrapped private key dataset.

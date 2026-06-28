@@ -3,6 +3,9 @@
 #include "freertos/semphr.h"
 #include "esp_timer.h"
 #include "telemetry_engine.h"
+#include "security_engine.h"
+#include "mbedtls/sha256.h"
+#include "mbedtls/version.h"
 
 static SemaphoreHandle_t s_telemetry_mutex = NULL;
 static telemetry_data_t s_current_data;
@@ -129,3 +132,52 @@ esp_err_t get_cryo_telemetry_snapshot(uint8_t *out_buffer, size_t buffer_len) {
     }
     return ESP_ERR_TIMEOUT;
 }
+
+esp_err_t get_signed_telemetry_snapshot(uint8_t *out_buffer, size_t buffer_len) {
+    if (out_buffer == NULL) {
+        return ESP_ERR_INVALID_ARG;
+    }
+    if (buffer_len < sizeof(signed_telemetry_packet_t)) {
+        return ESP_ERR_INVALID_SIZE;
+    }
+
+    signed_telemetry_packet_t signed_pkt;
+    
+    // 1. Get the unsigned telemetry snapshot (thread-safe, handles mutex internally)
+    esp_err_t err = get_cryo_telemetry_snapshot((uint8_t *)&signed_pkt.telemetry, sizeof(signed_pkt.telemetry));
+    if (err != ESP_OK) {
+        return err;
+    }
+
+    // 2. Compute SHA-256 digest of the 20-byte telemetry packet
+    uint8_t hash[32];
+    mbedtls_sha256_context ctx;
+    mbedtls_sha256_init(&ctx);
+    
+#if MBEDTLS_VERSION_NUMBER >= 0x03000000
+    mbedtls_sha256_starts(&ctx, 0);
+    mbedtls_sha256_update(&ctx, (const unsigned char *)&signed_pkt.telemetry, sizeof(signed_pkt.telemetry));
+    mbedtls_sha256_finish(&ctx, hash);
+#else
+    mbedtls_sha256_starts_ret(&ctx, 0);
+    mbedtls_sha256_update_ret(&ctx, (const unsigned char *)&signed_pkt.telemetry, sizeof(signed_pkt.telemetry));
+    mbedtls_sha256_finish_ret(&ctx, hash);
+#endif
+    mbedtls_sha256_free(&ctx);
+
+    // 3. Sign the 32-byte hash using the security engine
+    size_t sig_len = 0;
+    err = security_engine_sign_hash(hash, signed_pkt.signature, &sig_len);
+    if (err != ESP_OK) {
+        return err;
+    }
+
+    if (sig_len != 256) {
+        return ESP_ERR_INVALID_STATE;
+    }
+
+    // 4. Copy the completed signed packet to output buffer
+    memcpy(out_buffer, &signed_pkt, sizeof(signed_telemetry_packet_t));
+    return ESP_OK;
+}
+

@@ -18,11 +18,14 @@ idf.py menuconfig # Configure MQTT and DashScope credentials
 
 ## Usage
 
-1. **Provision Identity**: Burn the HMAC key to eFuse (Permanent) to wrap the private key for the Digital Signature (DS) peripheral.
-   ```bash
-   espefuse.py -p $PORT burn_key BLOCK_KEY0 hmac_key.bin HMAC_DS
-   espsecure.py digest_private_key --keyfile hmac_key.bin --private-key private_key.pem --output wrapped_private_key.bin
-   ```
+1. **Provision Identity**: 
+   * **Development Mode (Option A - Software Fallback)**: No eFuse operations required. The firmware automatically uses the software-embedded testing RSA key pair.
+   * **Production Hardware Mode**: Burn the HMAC key to eFuse (Permanent) to wrap the private key for the Digital Signature (DS) peripheral:
+     ```bash
+     espefuse.py -p $PORT burn_key BLOCK_KEY0 hmac_key.bin HMAC_DS
+     python3 -m esp_secure_cert.make_secure_cert_image --private-key private_key.pem --secure-cert-type ds --priv-key-len 2048 --hmac-key-file hmac_key.bin --output-file secure_cert_partition.bin
+     esptool.py -p $PORT write_flash 0xd0000 secure_cert_partition.bin
+     ```
 2. **Flash Firmware**:
    ```bash
    idf.py build flash monitor

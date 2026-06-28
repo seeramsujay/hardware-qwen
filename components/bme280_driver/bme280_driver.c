@@ -161,7 +161,7 @@ esp_err_t bme280_read_data(bme280_data_t *data) {
         if (cooling_active) {
             // Temperature decreases towards cold chamber target (e.g., -10.0°C)
             s_sim_temp -= 0.12f;
-            if (s_sim_temp < -12.0f) s_sim_temp = -12.0f;
+            if (s_sim_temp < -20.0f) s_sim_temp = -20.0f;
             
             // Humidity decreases slightly due to condensation
             s_sim_humidity -= 0.08f;

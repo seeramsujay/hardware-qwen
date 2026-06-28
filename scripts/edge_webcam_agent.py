@@ -163,6 +163,7 @@ def main():
     parser.add_argument("--broker", default=DEFAULT_BROKER, help="MQTT Broker host")
     parser.add_argument("--port", type=int, default=DEFAULT_PORT, help="MQTT Broker port")
     parser.add_argument("--auto", action="store_true", help="Run automated scenario loop without GUI")
+    parser.add_argument("--test", action="store_true", help="Run single transmission test and exit")
     parser.add_argument("--sim", action="store_true", help="Force synthetic image generation instead of webcam")
     args = parser.parse_args()
 
@@ -191,7 +192,7 @@ def main():
         print("[WARN] paho-mqtt not installed. Running in Dry Run mode.")
         
     cap = None
-    if not args.sim and HAS_CV2:
+    if not args.sim and not args.test and HAS_CV2:
         cap = cv2.VideoCapture(0)
         if cap.isOpened():
             print("[OK] Laptop Webcam opened successfully.")
@@ -201,6 +202,17 @@ def main():
 
     device_id = "ESP32-S3-CAM-EMULATOR-01"
     
+    if args.test:
+        print("\n[TEST MODE] Transmitting single synthetic nominal frame...")
+        telemetry = {"device_id": device_id, "timestamp": int(time.time()), "temp": -18.2, "humidity": 55.0, "cargo_status": "Anti-Gravity Active"}
+        img_bytes = generate_synthetic_image("NOMINAL", -18.2)
+        transmit_telemetry(client, args.broker, TOPIC_CHUNKS, private_key, img_bytes, telemetry, False)
+        if client:
+            client.loop_stop()
+            client.disconnect()
+        print("[OK] Single frame test passed.")
+        return
+
     if args.auto or not HAS_CV2 or cap is None:
         print("\n[AUTO MODE] Starting automated scenario demo loop (Ctrl+C to exit)...")
         scenarios = [

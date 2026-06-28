@@ -2,6 +2,7 @@
 #include <string.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "esp_task_wdt.h"
 #include "nvs_flash.h"
 #include "nvs.h"
 #include "esp_log.h"
@@ -32,7 +33,10 @@ void pid_control_task(void *pvParameters) {
     ESP_LOGI(TAG, "PID Control Task started on Core %d. Target Setpoint: %.2f °C", 
              xPortGetCoreID(), s_setpoint);
     
+    esp_task_wdt_add(NULL);
+    
     while (1) {
+        esp_task_wdt_reset();
         // Read BME280 data
         if (bme280_read_data(&sensor_data) == ESP_OK) {
             // Update telemetry data store with newest values
@@ -136,6 +140,7 @@ void telemetry_reporting_task(void *pvParameters) {
 void app_main(void)
 {
     ESP_LOGI(TAG, "Bootstrapping CryoKrypton Core firmware application...");
+    esp_task_wdt_init(5, true);
     
     // 1. Initialize NVS (Non-Volatile Storage)
     esp_err_t ret = nvs_flash_init();

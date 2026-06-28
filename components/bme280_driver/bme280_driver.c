@@ -157,22 +157,22 @@ esp_err_t bme280_read_data(bme280_data_t *data) {
         // Fetch current compressor relay pin state (configured as output)
         int cooling_active = gpio_get_level(COMPRESSOR_RELAY_GPIO);
         
-        // Sim physics model:
+        // Sim physics model (Tuned for PID stability Kp=3.0, Ki=0.05, Kd=1.5):
         if (cooling_active) {
-            // Temperature decreases towards cold chamber target (e.g., -10.0°C)
-            s_sim_temp -= 0.12f;
+            // Temperature decreases towards cold chamber target
+            s_sim_temp -= 0.25f;
             if (s_sim_temp < -20.0f) s_sim_temp = -20.0f;
             
             // Humidity decreases slightly due to condensation
-            s_sim_humidity -= 0.08f;
+            s_sim_humidity -= 0.12f;
             if (s_sim_humidity < 35.0f) s_sim_humidity = 35.0f;
         } else {
-            // Temperature rises slowly toward ambient cargo truck temperature (e.g., 24.0°C)
-            s_sim_temp += 0.04f;
+            // Temperature rises toward ambient cargo truck temperature
+            s_sim_temp += 0.10f;
             if (s_sim_temp > 24.0f) s_sim_temp = 24.0f;
             
-            // Humidity rises slowly toward ambient (e.g., 60.0%)
-            s_sim_humidity += 0.06f;
+            // Humidity rises slowly toward ambient
+            s_sim_humidity += 0.08f;
             if (s_sim_humidity > 60.0f) s_sim_humidity = 60.0f;
         }
         

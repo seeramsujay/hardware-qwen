@@ -10,3 +10,5 @@ esp/
 *.o
 *.bin
 *.elf
+.env
+Archives/

@@ -45,6 +45,25 @@ except ImportError:
     HAS_DASHSCOPE = False
 
 
+def load_env_file(dotenv_path=".env"):
+    if os.path.exists(dotenv_path):
+        with open(dotenv_path, "r") as f:
+            for line in f:
+                line = line.strip()
+                if not line or line.startswith("#"):
+                    continue
+                if "=" in line:
+                    key, val = line.split("=", 1)
+                    key = key.strip()
+                    val = val.strip().strip('"').strip("'")
+                    os.environ[key] = val
+
+load_env_file()
+if HAS_DASHSCOPE and "DASHSCOPE_API_KEY" in os.environ:
+    dashscope.api_key = os.environ["DASHSCOPE_API_KEY"]
+
+
+
 DEFAULT_BROKER = "broker.emqx.io"
 DEFAULT_PORT = 1883
 TOPIC_CHUNKS = "device/telemetry/chunks"
@@ -120,8 +139,50 @@ def run_ai_analysis(data, image_path=None):
     temp_anomaly = temp > -15.0
     
     print(f"  [AI] Ingesting telemetry + visual frame ({image_path if image_path else 'Simulated Vision'})...")
-    time.sleep(0.4)
     
+    # 1. Attempt Live DashScope Multimodal Call if enabled
+    if HAS_DASHSCOPE and getattr(dashscope, "api_key", None):
+        try:
+            from dashscope import MultiModalConversation
+            content = []
+            if image_path and os.path.exists(image_path):
+                content.append({"image": f"file://{image_path}"})
+            
+            prompt_str = (
+                f"You are the CryoKrypton biological cargo safety AI agent. Analyze these logs:\n"
+                f"- Temperature: {temp}°C (Target threshold: <= -18°C)\n"
+                f"- Gravity Index: {gravity} m/s^2\n"
+                f"- Cargo Mode/Status: {cargo_status}\n\n"
+                f"Perform a safety check. If the temperature shows a thermal breach, "
+                f"conclude your response with the phrase: '[TRIGGER REROUTE]' followed by the reason."
+            )
+            content.append({"text": prompt_str})
+            
+            response = MultiModalConversation.call(
+                model='qwen-vl-plus',
+                messages=[{"role": "user", "content": content}]
+            )
+            
+            if response.status_code == 200:
+                ai_output = response.output.choices[0].message.content
+                ai_text = "\n".join([item.get("text", "") for item in ai_output if "text" in item]) if isinstance(ai_output, list) else str(ai_output)
+                
+                print(f"\n  +-------------------------------------------------------------+")
+                print(f"  |              LIVE QWEN MULTIMODAL ANALYSIS                  |")
+                print(f"  +-------------------------------------------------------------+")
+                print(f"  {ai_text}")
+                print(f"  +-------------------------------------------------------------+")
+                
+                if "[TRIGGER REROUTE]" in ai_text:
+                    trigger_logistics_reroute(reason=f"Qwen AI Alert: {temp}C breach detected.")
+                return
+            else:
+                print(f"  [{YELLOW}WARN{RESET}] DashScope error {response.code}: {response.message}. Using offline logic.")
+        except Exception as e:
+            print(f"  [{YELLOW}WARN{RESET}] DashScope error: {e}. Using offline logic.")
+
+    # 2. Fallback Offline Simulation Logic
+    time.sleep(0.4)
     print(f"\n  +-------------------------------------------------------------+")
     print(f"  |                    AI ANALYSIS RESULT                       |")
     print(f"  +-------------------------------------------------------------+")
@@ -320,10 +381,13 @@ def run_simulated_demo():
 
 
 def main():
+    broker_host = os.environ.get("MQTT_BROKER", DEFAULT_BROKER)
+    broker_port = int(os.environ.get("MQTT_PORT", str(DEFAULT_PORT)))
+    
     parser = argparse.ArgumentParser(description="CryoKrypton Cloud Backend Ingress & AI Orchestrator")
     parser.add_argument("--live", action="store_true", help="Listen for live dual-laptop MQTT ingress")
-    parser.add_argument("--broker", default=DEFAULT_BROKER, help="MQTT Broker host")
-    parser.add_argument("--port", type=int, default=DEFAULT_PORT, help="MQTT Broker port")
+    parser.add_argument("--broker", default=broker_host, help="MQTT Broker host")
+    parser.add_argument("--port", type=int, default=broker_port, help="MQTT Broker port")
     args = parser.parse_args()
     
     if args.live:

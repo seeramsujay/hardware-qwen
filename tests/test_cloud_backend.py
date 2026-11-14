@@ -1,15 +1,15 @@
 import math
 import os
 import sys
-import tempfile
-import pytest
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from cloud_backend import calculate_spoilage_curve, load_env_file
 
+
 def test_spoilage_curve_safe_threshold():
     assert calculate_spoilage_curve(-25.0) == 999.0
     assert calculate_spoilage_curve(-18.0) == 999.0
+
 
 def test_spoilage_curve_decay():
     # delta = 8.0 -> 48 * exp(-2) ~ 6.496 -> 6.5
@@ -20,6 +20,7 @@ def test_spoilage_curve_decay():
     # extreme temperature
     res_high = calculate_spoilage_curve(50.0)
     assert res_high == 0.1
+
 
 def test_load_env_file(tmp_path):
     env_file = tmp_path / ".env.test"

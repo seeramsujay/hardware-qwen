@@ -1,4 +1,22 @@
+<div align="center">
+
+<img src="assets/logo.svg" alt="CryoKrypton Logo" width="160" />
+
 # CryoKrypton
+### Zero-Trust Edge Auditing for Cold-Chain Biologicals via ESP32-S3 eFuse & Qwen AI
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Hardware: ESP32-S3](https://img.shields.io/badge/Hardware-ESP32--S3%20eFuse%20DS-red.svg?logo=espressif&logoColor=white)](sdkconfig.defaults)
+[![Framework: ESP-IDF](https://img.shields.io/badge/Firmware-ESP--IDF%20v5.2+-E7352C.svg)](#)
+[![Cloud Agent: Qwen 3.7](https://img.shields.io/badge/Cloud%20Agent-Qwen%203.7--Plus-6933FF.svg)](#)
+
+<p align="center">
+  <b>Transforming the ESP32-S3 into a tamper-evident hardware compliance agent that cryptographically signs sensor telemetry using silicon eFuse keys and orchestrates autonomous logistics interventions via Qwen.</b>
+</p>
+
+</div>
+
+---
 
 **Zero-trust edge auditing for high-value biologicals using hardware-backed cryptography and Qwen3.7-Plus.**
 
